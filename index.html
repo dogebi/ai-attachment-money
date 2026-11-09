@@ -16,6 +16,10 @@
     --muted:    #98A2B3;
     --green:    #5BD6A2;
     --line:     rgba(152, 162, 179, .16);
+    /* 모션 토큰 */
+    --eo:    cubic-bezier(0.22, 0.61, 0.36, 1);      /* ease-out 0.4s 기본 */
+    --spring: cubic-bezier(0.34, 1.56, 0.64, 1);     /* 카드 스프링 */
+    --t-in:  .4s;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -32,9 +36,48 @@
     overflow-x: hidden;
   }
 
+  :lang(zh) body { font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; }
+  :lang(en) body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", system-ui, sans-serif; }
+
   ::selection { background: var(--gold); color: var(--ink); }
 
   .wrap { max-width: 880px; margin: 0 auto; padding: 0 28px; }
+
+  /* ───────── 언어 전환 ───────── */
+
+  .lang-switch {
+    position: fixed;
+    top: 20px; right: 24px;
+    z-index: 10;
+    display: flex;
+    gap: 4px;
+    background: rgba(18, 25, 38, .85);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+    backdrop-filter: blur(8px);
+  }
+  .lang-switch button {
+    font: inherit;
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-radius: 999px;
+    padding: 5px 13px;
+    cursor: pointer;
+    transition: color .25s, background .25s;
+  }
+  .lang-switch button:hover { color: var(--paper); }
+  .lang-switch button[aria-pressed="true"] {
+    color: var(--ink);
+    background: var(--gold);
+  }
+  .lang-switch button:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
 
   /* ───────── 히어로 ───────── */
 
@@ -60,6 +103,7 @@
 
   .hero .wrap { position: relative; width: 100%; }
 
+  /* 제목 — 단어 단위 스플릿 리빌 */
   .hero h1 {
     font-size: clamp(2.2rem, 6.2vw, 4.2rem);
     font-weight: 900;
@@ -71,12 +115,48 @@
 
   .hero h1 .gold { color: var(--gold); }
 
+  .w {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(.7em);
+  }
+  .split.play .w {
+    animation: wordIn var(--t-in) var(--eo) forwards;
+    animation-delay: calc(var(--i) * 60ms);
+  }
+  @keyframes wordIn { to { opacity: 1; transform: none; } }
+
   .hero .lede {
     color: var(--muted);
     font-size: clamp(1rem, 2vw, 1.15rem);
     max-width: 46ch;
-    margin-bottom: 18px;
   }
+
+  /* CTA — 약한 마그네틱 */
+  .cta {
+    display: inline-block;
+    margin-top: 30px;
+    font: inherit;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--gold);
+    border: none;
+    border-radius: 999px;
+    padding: 12px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    will-change: transform;
+    transition: box-shadow .25s var(--eo);
+  }
+  .cta:hover { box-shadow: 0 8px 28px rgba(230,185,92,.35); }
+  .cta:focus-visible { outline: 2px solid var(--paper); outline-offset: 3px; }
+  .cta.ghost {
+    background: none;
+    color: var(--paper);
+    box-shadow: inset 0 0 0 1.5px var(--line);
+  }
+  .cta.ghost:hover { box-shadow: inset 0 0 0 1.5px var(--gold); }
 
   /* 돈의 흐름 — 모션 경로 */
 
@@ -172,6 +252,77 @@
     100%     { width: 42px; opacity: 0; }
   }
 
+  /* ───────── 통계 카운트업 ───────── */
+
+  .stats {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+  .stats .wrap {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .stat { text-align: center; }
+  .stat .stat-n {
+    display: block;
+    font-size: clamp(2.2rem, 4.5vw, 3.2rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .stat-l {
+    display: block;
+    font-size: .85rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ───────── 지불 주체 마퀴 ───────── */
+
+  .marquee {
+    padding: 34px 0;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+  .mq-label {
+    text-align: center;
+    font-size: .85rem;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .mq-viewport { overflow: hidden; }
+  .mq-track {
+    display: flex;
+    width: max-content;
+    animation: mq 30s linear infinite;
+  }
+  .marquee:hover .mq-track { animation-play-state: paused; }
+  .mq-set {
+    display: flex;
+    align-items: center;
+    gap: 56px;
+    padding-right: 56px;
+  }
+  .mq-item {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--muted);
+    opacity: .55;
+    white-space: nowrap;
+    transition: color .3s, opacity .3s;
+  }
+  .mq-item:hover { color: var(--gold); opacity: 1; }
+  @keyframes mq { to { transform: translateX(-50%); } }
+
   /* ───────── 공통 섹션 ───────── */
 
   section { padding: 96px 0; }
@@ -207,14 +358,21 @@
   }
   p.body strong { color: var(--paper); font-weight: 600; }
 
-  /* 스크롤 리빌 */
-
+  /* 스크롤 리빌 — 전부 이즈아웃 0.4초 */
   .reveal {
     opacity: 0;
-    transform: translateY(26px);
-    transition: opacity .8s cubic-bezier(.2,.6,.2,1), transform .8s cubic-bezier(.2,.6,.2,1);
+    transform: translateY(22px);
+    transition: opacity var(--t-in) var(--eo), transform var(--t-in) var(--eo);
   }
   .reveal.in { opacity: 1; transform: none; }
+
+  /* 기능 카드 — 스프링 등장 */
+  .spring {
+    opacity: 0;
+    transform: translateY(30px) scale(.94);
+    transition: transform var(--t-in) var(--spring), opacity var(--t-in) var(--eo);
+  }
+  .spring.in { opacity: 1; transform: none; }
 
   /* ───────── 명제(thesis) ───────── */
 
@@ -280,7 +438,7 @@
     letter-spacing: -0.04em;
     color: transparent;
     -webkit-text-stroke: 1.5px rgba(230,185,92,.5);
-    transition: color .6s, -webkit-text-stroke-color .6s;
+    transition: color .6s var(--eo), -webkit-text-stroke-color .6s var(--eo);
   }
   .method.in .num { color: var(--gold); -webkit-text-stroke-color: var(--gold); }
 
@@ -321,7 +479,7 @@
     background: linear-gradient(90deg, var(--gold), #F2D489);
     transform: scaleX(0);
     transform-origin: left;
-    transition: transform 1.2s cubic-bezier(.2,.7,.2,1) .3s;
+    transition: transform 1.2s var(--eo) .3s;
   }
   .method.in .meter i { transform: scaleX(1); }
 
@@ -429,7 +587,7 @@
     padding: 26px 20px;
     text-align: left;
     border-top: 2px solid var(--line);
-    transition: border-color .4s;
+    transition: border-color .4s var(--eo);
   }
   .step:hover { border-color: var(--gold); }
   .step .s-num {
@@ -441,6 +599,14 @@
   .step h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
   .step p { font-size: .88rem; color: var(--muted); }
 
+  .final .cta-row {
+    margin-top: 64px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
   /* ───────── 푸터 ───────── */
 
   footer {
@@ -449,19 +615,10 @@
     color: var(--muted);
     font-size: .85rem;
   }
-  footer .wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-  footer a { color: var(--muted); transition: color .25s; }
-  footer a:hover { color: var(--gold); }
 
   /* ───────── 접근성 ───────── */
 
-  a:focus-visible, .step:focus-visible {
+  .step:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 3px;
   }
@@ -477,29 +634,43 @@
       transform: rotate(135deg);
     }
     .flow .endpoint, .flow .origin { display: none; }
+    .lang-switch { top: 14px; right: 14px; }
+    .lang-switch button { padding: 4px 10px; font-size: .75rem; }
+    .stats .wrap { grid-template-columns: 1fr 1fr; row-gap: 32px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .coin, .track-gold, .stack i, .node::before, .node::after {
+    .coin, .track-gold, .stack i, .node::before, .node::after,
+    .mq-track, .split.play .w {
       animation: none !important;
     }
     .coin, .stack i:nth-child(4) { opacity: 0; }
-    .reveal { opacity: 1; transform: none; transition: none; }
+    .w { opacity: 1 !important; transform: none !important; }
+    .reveal, .spring { opacity: 1; transform: none; transition: none; }
     .meter i { transform: scaleX(1); transition: none; }
     .method.in .num { color: var(--gold); }
+    .cta { transition: none; }
   }
 </style>
 </head>
 <body>
 
+<!-- 언어 전환 -->
+<nav class="lang-switch" aria-label="Language">
+  <button type="button" data-lang="ko" aria-pressed="true">한국어</button>
+  <button type="button" data-lang="en" aria-pressed="false">EN</button>
+  <button type="button" data-lang="cn" aria-pressed="false">中文</button>
+</nav>
+
 <!-- ═════════ 히어로 ═════════ -->
 <header class="hero">
   <div class="wrap">
-    <h1 class="reveal">AI 스타트업 말고,<br><span class="gold">붙여 주는 사람</span>이<br>돈을 번다</h1>
-    <p class="lede reveal" style="transition-delay:.15s">
+    <h1 class="split" id="heroTitle" data-i18n-html="h1">AI 스타트업 말고,<br><span class="gold">붙여 주는 사람</span>이<br>돈을 번다</h1>
+    <p class="lede reveal" id="heroLede" style="transition-delay:.5s" data-i18n="lede">
       AI로 부수입을 만드는 4가지 방법과, 해외 영상이 짚은 한계 — 그리고 결국 돈이 나오는 곳을 향한 하나의 답.
     </p>
+    <a class="cta magnetic reveal" id="heroCta" style="transition-delay:.7s" href="#final" data-i18n="cta1">3단계 바로 보기</a>
 
     <!-- 돈의 흐름 모션 -->
     <div class="flow" aria-hidden="true">
@@ -511,35 +682,65 @@
       <span class="coin"></span>
       <span class="coin c2"></span>
       <span class="coin c3"></span>
-      <span class="endpoint">내 돈이 나오는 곳</span>
+      <span class="endpoint" data-i18n="flow_end">내 돈이 나오는 곳</span>
       <div class="stack"><i></i><i></i><i></i><i></i></div>
     </div>
   </div>
 </header>
 
+<!-- ═════════ 통계 (카운트업) ═════════ -->
+<div class="stats" id="stats">
+  <div class="wrap">
+    <div class="stat reveal">
+      <span class="stat-n" data-count="4">0</span>
+      <span class="stat-l" data-i18n="st1_l">검증된 방법</span>
+    </div>
+    <div class="stat reveal" style="transition-delay:.1s">
+      <span class="stat-n" data-count="24">0</span>
+      <span class="stat-l" data-i18n="st2_l">시간 무중단 응대</span>
+    </div>
+    <div class="stat reveal" style="transition-delay:.2s">
+      <span class="stat-n" data-count="3">0</span>
+      <span class="stat-l" data-i18n="st3_l">단계면 충분</span>
+    </div>
+    <div class="stat reveal" style="transition-delay:.3s">
+      <span class="stat-n" data-count="0">0</span>
+      <span class="stat-l" data-i18n="st4_l">개의 신규 시장 필요</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 지불 주체 마퀴 ═════════ -->
+<div class="marquee">
+  <p class="mq-label" data-i18n="mq_l">이런 사업이 이미 돈을 냅니다</p>
+  <div class="mq-viewport">
+    <div class="mq-track" id="mqTrack"></div>
+  </div>
+</div>
+
 <!-- ═════════ 명제 ═════════ -->
 <section class="thesis">
   <div class="wrap">
-    <p class="kicker reveal">영상의 핵심 한 문장</p>
-    <h2 class="reveal">돈은 AI를 <em style="font-style:normal; color:var(--gold)">만드는</em> 사람이 아니라, 기존 사업에 AI를 <em style="font-style:normal; color:var(--gold)">붙여 주는</em> 사람에게 흐른다.</h2>
-    <p class="body reveal">AI 모델을 만드는 건 대기업의 게임입니다. 하지만 그 모델을 몰라서, 시간이 없어서, 방법을 몰라서 못 쓰는 사업자는 넘칩니다. 그 간극을 메워 주는 서비스 — 그게 개인이 노릴 수 있는 자리입니다.</p>
+    <p class="kicker reveal" data-i18n="k1">영상의 핵심 한 문장</p>
+    <h2 class="reveal" data-i18n-html="th_h2">돈은 AI를 <em style="font-style:normal; color:var(--gold)">만드는</em> 사람이 아니라, 기존 사업에 AI를 <em style="font-style:normal; color:var(--gold)">붙여 주는</em> 사람에게 흐른다.</h2>
+    <p class="body reveal" data-i18n="th_p">AI 모델을 만드는 건 대기업의 게임입니다. 하지만 그 모델을 몰라서, 시간이 없어서, 방법을 몰라서 못 쓰는 사업자는 넘칩니다. 그 간극을 메워 주는 서비스 — 그게 개인이 노릴 수 있는 자리입니다.</p>
 
     <div class="equation">
-      <div class="eq-box reveal">
-        <h3>돈이 나오는 곳</h3>
-        <p>이미 매출이 있거나 고객이 있는 기존 사업. 시장 검증이 끝난 상태.</p>
+      <div class="eq-box spring">
+        <h3 data-i18n="eq1_h">돈이 나오는 곳</h3>
+        <p data-i18n="eq1_p">이미 매출이 있거나 고객이 있는 기존 사업. 시장 검증이 끝난 상태.</p>
       </div>
-      <div class="eq-box hot reveal" style="transition-delay:.15s">
-        <h3>느린 병목</h3>
-        <p>콘텐츠 제작, 후속 연락, 사이트 관리, 상담 응대 — 사람 손으로 하다 보니 막힌 지점.</p>
+      <div class="eq-box hot spring" style="transition-delay:.08s">
+        <h3 data-i18n="eq2_h">느린 병목</h3>
+        <p data-i18n="eq2_p">콘텐츠 제작, 후속 연락, 사이트 관리, 상담 응대 — 사람 손으로 하다 보니 막힌 지점.</p>
       </div>
-      <div class="eq-box reveal" style="transition-delay:.3s">
-        <h3>AI를 붙인다</h3>
-        <p>병목만 골라 AI로 대체. 도구를 파는 게 아니라 결과를 대행.</p>
+      <div class="eq-box spring" style="transition-delay:.16s">
+        <h3 data-i18n="eq3_h">AI를 붙인다</h3>
+        <p data-i18n="eq3_p">병목만 골라 AI로 대체. 도구를 파는 게 아니라 결과를 대행.</p>
       </div>
-      <div class="eq-box gain reveal" style="transition-delay:.45s">
-        <h3>수익</h3>
-        <p>고객은 시간과 매출이 늘어난 만큼 기꺼이 지불한다.</p>
+      <div class="eq-box gain spring" style="transition-delay:.24s">
+        <h3 data-i18n="eq4_h">수익</h3>
+        <p data-i18n="eq4_p">고객은 시간과 매출이 늘어난 만큼 기꺼이 지불한다.</p>
       </div>
     </div>
   </div>
@@ -548,45 +749,45 @@
 <!-- ═════════ 방법 4가지 ═════════ -->
 <section>
   <div class="wrap">
-    <p class="kicker reveal">영상에서 소개한 4가지 방법</p>
-    <h2 class="reveal">바로 시작 가능한, 검증된 네 가지</h2>
+    <p class="kicker reveal" data-i18n="k2">영상에서 소개한 4가지 방법</p>
+    <h2 class="reveal" data-i18n="m_h2">바로 시작 가능한, 검증된 네 가지</h2>
 
-    <div class="method reveal">
+    <div class="method spring">
       <div class="num" aria-hidden="true">1</div>
       <div>
-        <h3>콘텐츠 재가공 대행</h3>
-        <p>긴 영상, 팟캐스트, 블로그 글을 숏폼·카드뉴스·SNS 게시물로 잘라 주는 대행. 크리에이터는 만들기 바쁘고, 잘라서 퍼뜨릴 시간은 없습니다.</p>
-        <span class="payer"><b>고객</b> 1인 크리에이터, 강의 판매자, 콘텐츠 마케터</span>
+        <h3 data-i18n="m1_h3">콘텐츠 재가공 대행</h3>
+        <p data-i18n="m1_p">긴 영상, 팟캐스트, 블로그 글을 숏폼·카드뉴스·SNS 게시물로 잘라 주는 대행. 크리에이터는 만들기 바쁘고, 잘라서 퍼뜨릴 시간은 없습니다.</p>
+        <span class="payer" data-i18n-html="m1_payer"><b>고객</b> 1인 크리에이터, 강의 판매자, 콘텐츠 마케터</span>
         <div class="meter"><i></i></div>
       </div>
     </div>
 
-    <div class="method reveal">
+    <div class="method spring">
       <div class="num" aria-hidden="true">2</div>
       <div>
-        <h3>휴면 리드 깨우기</h3>
-        <p>문의만 하고 사라진 고객, 한 번 산 뒤 손 놓은 고객 리스트에 AI로 개인화 메시지와 후속 제안을 보내 재구매를 만들어 줍니다. 쌓아 두기만 한 리드가 곧 매출입니다.</p>
-        <span class="payer"><b>고객</b> 리드 데이터를 쌓아 둔 사업자, 온라인 스토어</span>
+        <h3 data-i18n="m2_h3">휴면 리드 깨우기</h3>
+        <p data-i18n="m2_p">문의만 하고 사라진 고객, 한 번 산 뒤 손 놓은 고객 리스트에 AI로 개인화 메시지와 후속 제안을 보내 재구매를 만들어 줍니다. 쌓아 두기만 한 리드가 곧 매출입니다.</p>
+        <span class="payer" data-i18n-html="m2_payer"><b>고객</b> 리드 데이터를 쌓아 둔 사업자, 온라인 스토어</span>
         <div class="meter"><i></i></div>
       </div>
     </div>
 
-    <div class="method reveal">
+    <div class="method spring">
       <div class="num" aria-hidden="true">3</div>
       <div>
-        <h3>지역 업체 웹사이트 개편</h3>
-        <p>10년 된 지역 업체 홈페이지를 AI로 진단하고, 예약·문의 전환이 잘 되는 구조로 개편. 대형 에이전시는 비싸고, 업체 주인은 직접 하기 어렵습니다.</p>
-        <span class="payer"><b>고객</b> 치과·학원·카센터 같은 로컬 비즈니스</span>
+        <h3 data-i18n="m3_h3">지역 업체 웹사이트 개편</h3>
+        <p data-i18n="m3_p">10년 된 지역 업체 홈페이지를 AI로 진단하고, 예약·문의 전환이 잘 되는 구조로 개편. 대형 에이전시는 비싸고, 업체 주인은 직접 하기 어렵습니다.</p>
+        <span class="payer" data-i18n-html="m3_payer"><b>고객</b> 치과·학원·카센터 같은 로컬 비즈니스</span>
         <div class="meter"><i></i></div>
       </div>
     </div>
 
-    <div class="method reveal">
+    <div class="method spring">
       <div class="num" aria-hidden="true">4</div>
       <div>
-        <h3>고객 응대 챗봇 셋팅</h3>
-        <p>반복되는 문의에 24시간 답하는 상담 챗봇을 구축·세팅해 주는 대행. 문의가 몰리는데 사람이 답을 못 하는 업체일수록 지불 의사가 큽니다.</p>
-        <span class="payer"><b>고객</b> 상담 문의가 많은 중소 업체, 병원·숙박업</span>
+        <h3 data-i18n="m4_h3">고객 응대 챗봇 셋팅</h3>
+        <p data-i18n="m4_p">반복되는 문의에 24시간 답하는 상담 챗봇을 구축·세팅해 주는 대행. 문의가 몰리는데 사람이 답을 못 하는 업체일수록 지불 의사가 큽니다.</p>
+        <span class="payer" data-i18n-html="m4_payer"><b>고객</b> 상담 문의가 많은 중소 업체, 병원·숙박업</span>
         <div class="meter"><i></i></div>
       </div>
     </div>
@@ -596,24 +797,24 @@
 <!-- ═════════ 한계와 공통점 ═════════ -->
 <section class="thesis">
   <div class="wrap">
-    <p class="kicker reveal">해외 영상이 짚은 부분</p>
-    <h2 class="reveal">붙이기 전에 알아야 할 한계와, 네 가지의 공통점</h2>
+    <p class="kicker reveal" data-i18n="k3">해외 영상이 짚은 부분</p>
+    <h2 class="reveal" data-i18n="sp_h2">붙이기 전에 알아야 할 한계와, 네 가지의 공통점</h2>
 
     <div class="split">
-      <div class="warn reveal">
-        <h3>한계</h3>
+      <div class="warn spring">
+        <h3 data-i18n="warn_h">한계</h3>
         <ul>
-          <li><strong>영업이 반</strong> — 도구를 잘 쓰는 것보다 고객을 찾아 나서는 게 더 어렵고, 더 결정적입니다.</li>
-          <li><strong>과장 화법 경계</strong> — "AI만 있으면 누구나 월 천만"류의 클릭베이트는 필터링해야 합니다.</li>
-          <li><strong>대행은 결국 서비스업</strong> — 품질과 마감을 책임지는 사람의 일이고, AI는 여기서 도구일 뿐입니다.</li>
+          <li data-i18n-html="w1"><strong>영업이 반</strong> — 도구를 잘 쓰는 것보다 고객을 찾아 나서는 게 더 어렵고, 더 결정적입니다.</li>
+          <li data-i18n-html="w2"><strong>과장 화법 경계</strong> — "AI만 있으면 누구나 월 천만"류의 클릭베이트는 필터링해야 합니다.</li>
+          <li data-i18n-html="w3"><strong>대행은 결국 서비스업</strong> — 품질과 마감을 책임지는 사람의 일이고, AI는 여기서 도구일 뿐입니다.</li>
         </ul>
       </div>
-      <div class="common reveal" style="transition-delay:.15s">
-        <h3>공통점</h3>
+      <div class="common spring" style="transition-delay:.08s">
+        <h3 data-i18n="common_h">공통점</h3>
         <ul>
-          <li><strong>새 시장을 만들지 않는다</strong> — 네 가지 전부 이미 돈이 나오는 기존 사업의 병목에 붙습니다.</li>
-          <li><strong>결과를 판다</strong> — AI 기능이 아니라 "영상 30개", "재구매 n건", "예약 증가"를 전달합니다.</li>
-          <li><strong>검증된 수요</strong> — 고객은 이미 그 문제로 돈을 쓰고 있었고, AI는 그 비용을 낮출 뿐입니다.</li>
+          <li data-i18n-html="c1"><strong>새 시장을 만들지 않는다</strong> — 네 가지 전부 이미 돈이 나오는 기존 사업의 병목에 붙습니다.</li>
+          <li data-i18n-html="c2"><strong>결과를 판다</strong> — AI 기능이 아니라 "영상 30개", "재구매 n건", "예약 증가"를 전달합니다.</li>
+          <li data-i18n-html="c3"><strong>검증된 수요</strong> — 고객은 이미 그 문제로 돈을 쓰고 있었고, AI는 그 비용을 낮출 뿐입니다.</li>
         </ul>
       </div>
     </div>
@@ -621,7 +822,7 @@
 </section>
 
 <!-- ═════════ 결론 ═════════ -->
-<section class="final">
+<section class="final" id="final">
   <div class="wrap">
     <div class="node reveal" aria-hidden="true">
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B0F17" stroke-width="2.4" stroke-linecap="round">
@@ -629,42 +830,288 @@
         <path d="M15 6 h5 v5"/>
       </svg>
     </div>
-    <h2 class="reveal">내 돈이 나오는 곳에<br><span class="gold">AI를 붙이세요</span></h2>
-    <p class="lede reveal">새로운 것을 찾을 필요가 없습니다. 이미 굴러가는 일에서 가장 느린 지점을 찾는 것 — 그게 전부입니다.</p>
+    <h2 class="reveal" data-i18n-html="fn_h2">내 돈이 나오는 곳에<br><span class="gold">AI를 붙이세요</span></h2>
+    <p class="lede reveal" data-i18n="fn_lede">새로운 것을 찾을 필요가 없습니다. 이미 굴러가는 일에서 가장 느린 지점을 찾는 것 — 그게 전부입니다.</p>
 
     <div class="steps">
-      <div class="step reveal" tabindex="0">
+      <div class="step spring" tabindex="0">
         <p class="s-num">1</p>
-        <h4>내가 이미 하는 일</h4>
-        <p>직업, 사업, 취미 — 시간을 이미 쓰고 있는 영역부터 봅니다.</p>
+        <h4 data-i18n="s1_h4">내가 이미 하는 일</h4>
+        <p data-i18n="s1_p">직업, 사업, 취미 — 시간을 이미 쓰고 있는 영역부터 봅니다.</p>
       </div>
-      <div class="step reveal" tabindex="0" style="transition-delay:.15s">
+      <div class="step spring" tabindex="0" style="transition-delay:.08s">
         <p class="s-num">2</p>
-        <h4>가장 느린 병목</h4>
-        <p>반복하고 싫어하는 작업, 밀린 답장, 못 만드는 콘텐츠를 고릅니다.</p>
+        <h4 data-i18n="s2_h4">가장 느린 병목</h4>
+        <p data-i18n="s2_p">반복하고 싫어하는 작업, 밀린 답장, 못 만드는 콘텐츠를 고릅니다.</p>
       </div>
-      <div class="step reveal" tabindex="0" style="transition-delay:.3s">
+      <div class="step spring" tabindex="0" style="transition-delay:.16s">
         <p class="s-num">3</p>
-        <h4>AI를 붙인다</h4>
-        <p>그 지점 하나만 AI로 바꿔 봅니다. 남은 건 반복과 검증입니다.</p>
+        <h4 data-i18n="s3_h4">AI를 붙인다</h4>
+        <p data-i18n="s3_p">그 지점 하나만 AI로 바꿔 봅니다. 남은 건 반복과 검증입니다.</p>
       </div>
+    </div>
+
+    <div class="cta-row">
+      <button class="cta magnetic" id="payCta" type="button" data-i18n="cta2">AI 붙이기 시작</button>
+      <a class="cta ghost magnetic" href="#" id="topCta" data-i18n="cta3">맨 위로</a>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span>영상 챕터를 기반으로 정리한 요약 페이지</span>
+    <span data-i18n="footer">영상 챕터를 기반으로 정리한 요약 페이지</span>
   </div>
 </footer>
 
 <script>
-  (function () {
-    var items = document.querySelectorAll('.reveal, .method');
-    if (!('IntersectionObserver' in window)) {
-      items.forEach(function (el) { el.classList.add('in'); });
-      return;
+(function () {
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var T = {
+    ko: {
+      title: "내 돈이 나오는 곳에 AI를 붙이세요 — 영상 요약",
+      h1: 'AI 스타트업 말고,<br><span class="gold">붙여 주는 사람</span>이<br>돈을 번다',
+      lede: "AI로 부수입을 만드는 4가지 방법과, 해외 영상이 짚은 한계 — 그리고 결국 돈이 나오는 곳을 향한 하나의 답.",
+      cta1: "3단계 바로 보기",
+      cta2: "AI 붙이기 시작",
+      cta3: "맨 위로",
+      flow_end: "내 돈이 나오는 곳",
+      st1_l: "검증된 방법", st2_l: "시간 무중단 응대", st3_l: "단계면 충분", st4_l: "개의 신규 시장 필요",
+      mq_l: "이런 사업이 이미 돈을 냅니다",
+      mq_items: ["치과의원","학원","1인 크리에이터","온라인 스토어","강의 판매자","카센터","숙박업","콘텐츠 마케터"],
+      k1: "영상의 핵심 한 문장",
+      th_h2: '돈은 AI를 <em style="font-style:normal; color:var(--gold)">만드는</em> 사람이 아니라, 기존 사업에 AI를 <em style="font-style:normal; color:var(--gold)">붙여 주는</em> 사람에게 흐른다.',
+      th_p: "AI 모델을 만드는 건 대기업의 게임입니다. 하지만 그 모델을 몰라서, 시간이 없어서, 방법을 몰라서 못 쓰는 사업자는 넘칩니다. 그 간극을 메워 주는 서비스 — 그게 개인이 노릴 수 있는 자리입니다.",
+      eq1_h: "돈이 나오는 곳", eq1_p: "이미 매출이 있거나 고객이 있는 기존 사업. 시장 검증이 끝난 상태.",
+      eq2_h: "느린 병목", eq2_p: "콘텐츠 제작, 후속 연락, 사이트 관리, 상담 응대 — 사람 손으로 하다 보니 막힌 지점.",
+      eq3_h: "AI를 붙인다", eq3_p: "병목만 골라 AI로 대체. 도구를 파는 게 아니라 결과를 대행.",
+      eq4_h: "수익", eq4_p: "고객은 시간과 매출이 늘어난 만큼 기꺼이 지불한다.",
+      k2: "영상에서 소개한 4가지 방법", m_h2: "바로 시작 가능한, 검증된 네 가지",
+      m1_h3: "콘텐츠 재가공 대행",
+      m1_p: "긴 영상, 팟캐스트, 블로그 글을 숏폼·카드뉴스·SNS 게시물로 잘라 주는 대행. 크리에이터는 만들기 바쁘고, 잘라서 퍼뜨릴 시간은 없습니다.",
+      m1_payer: '<b>고객</b> 1인 크리에이터, 강의 판매자, 콘텐츠 마케터',
+      m2_h3: "휴면 리드 깨우기",
+      m2_p: "문의만 하고 사라진 고객, 한 번 산 뒤 손 놓은 고객 리스트에 AI로 개인화 메시지와 후속 제안을 보내 재구매를 만들어 줍니다. 쌓아 두기만 한 리드가 곧 매출입니다.",
+      m2_payer: '<b>고객</b> 리드 데이터를 쌓아 둔 사업자, 온라인 스토어',
+      m3_h3: "지역 업체 웹사이트 개편",
+      m3_p: "10년 된 지역 업체 홈페이지를 AI로 진단하고, 예약·문의 전환이 잘 되는 구조로 개편. 대형 에이전시는 비싸고, 업체 주인은 직접 하기 어렵습니다.",
+      m3_payer: '<b>고객</b> 치과·학원·카센터 같은 로컬 비즈니스',
+      m4_h3: "고객 응대 챗봇 셋팅",
+      m4_p: "반복되는 문의에 24시간 답하는 상담 챗봇을 구축·세팅해 주는 대행. 문의가 몰리는데 사람이 답을 못 하는 업체일수록 지불 의사가 큽니다.",
+      m4_payer: '<b>고객</b> 상담 문의가 많은 중소 업체, 병원·숙박업',
+      k3: "해외 영상이 짚은 부분", sp_h2: "붙이기 전에 알아야 할 한계와, 네 가지의 공통점",
+      warn_h: "한계",
+      w1: '<strong>영업이 반</strong> — 도구를 잘 쓰는 것보다 고객을 찾아 나서는 게 더 어렵고, 더 결정적입니다.',
+      w2: '<strong>과장 화법 경계</strong> — "AI만 있으면 누구나 월 천만"류의 클릭베이트는 필터링해야 합니다.',
+      w3: '<strong>대행은 결국 서비스업</strong> — 품질과 마감을 책임지는 사람의 일이고, AI는 여기서 도구일 뿐입니다.',
+      common_h: "공통점",
+      c1: '<strong>새 시장을 만들지 않는다</strong> — 네 가지 전부 이미 돈이 나오는 기존 사업의 병목에 붙습니다.',
+      c2: '<strong>결과를 판다</strong> — AI 기능이 아니라 "영상 30개", "재구매 n건", "예약 증가"를 전달합니다.',
+      c3: '<strong>검증된 수요</strong> — 고객은 이미 그 문제로 돈을 쓰고 있었고, AI는 그 비용을 낮출 뿐입니다.',
+      fn_h2: '내 돈이 나오는 곳에<br><span class="gold">AI를 붙이세요</span>',
+      fn_lede: "새로운 것을 찾을 필요가 없습니다. 이미 굴러가는 일에서 가장 느린 지점을 찾는 것 — 그게 전부입니다.",
+      s1_h4: "내가 이미 하는 일", s1_p: "직업, 사업, 취미 — 시간을 이미 쓰고 있는 영역부터 봅니다.",
+      s2_h4: "가장 느린 병목", s2_p: "반복하고 싫어하는 작업, 밀린 답장, 못 만드는 콘텐츠를 고릅니다.",
+      s3_h4: "AI를 붙인다", s3_p: "그 지점 하나만 AI로 바꿔 봅니다. 남은 건 반복과 검증입니다.",
+      footer: "영상 챕터를 기반으로 정리한 요약 페이지"
+    },
+    en: {
+      title: "Attach AI Where Your Money Flows — Video Summary",
+      h1: 'Not an AI startup —<br><span class="gold">those who attach it</span><br>get paid',
+      lede: "Four ways to earn side income with AI, the caveats an overseas video points out — and one answer that points back to where the money already flows.",
+      cta1: "See the 3 steps",
+      cta2: "Start attaching AI",
+      cta3: "Back to top",
+      flow_end: "where your money flows",
+      st1_l: "proven plays", st2_l: "hours of automated replies", st3_l: "steps to start", st4_l: "new markets needed",
+      mq_l: "These businesses already pay for it",
+      mq_items: ["Dental clinics","Academies","Solo creators","Online stores","Course sellers","Auto shops","Hotels","Content marketers"],
+      k1: "The video's core idea, in one sentence",
+      th_h2: 'Money doesn\'t flow to those who <em style="font-style:normal; color:var(--gold)">build</em> AI, but to those who <em style="font-style:normal; color:var(--gold)">attach</em> it to businesses that already exist.',
+      th_p: "Building AI models is a big-company game. But businesses that can't use those models — for lack of know-how, time, or method — are everywhere. Filling that gap is where individuals can play.",
+      eq1_h: "Where money already flows", eq1_p: "Businesses with existing revenue or customers. The market is already validated.",
+      eq2_h: "The slow bottleneck", eq2_p: "Content production, follow-ups, site upkeep, customer replies — the points where manual work stalls.",
+      eq3_h: "Attach AI", eq3_p: "Replace just the bottleneck with AI. Sell outcomes, not tools.",
+      eq4_h: "Profit", eq4_p: "Clients gladly pay for the time and revenue they gain.",
+      k2: "The four methods from the video", m_h2: "Four proven plays you can start today",
+      m1_h3: "Content repurposing service",
+      m1_p: "Turn long videos, podcasts, and blog posts into shorts, carousels, and social posts — as a done-for-you service. Creators are busy making; nobody has time to slice and spread.",
+      m1_payer: '<b>For</b> solo creators, course sellers, content marketers',
+      m2_h3: "Reviving dormant leads",
+      m2_p: "Send AI-personalized messages and follow-up offers to leads that inquired and vanished, or bought once and went quiet — turning a dusty list into repeat revenue.",
+      m2_payer: '<b>For</b> businesses sitting on lead data, online stores',
+      m3_h3: "Local business website revamps",
+      m3_p: "Diagnose a decade-old local business site with AI and rebuild it around bookings and inquiries. Agencies charge a fortune; owners can't do it themselves.",
+      m3_payer: '<b>For</b> dental clinics, academies, auto shops and other local businesses',
+      m4_h3: "Customer-reply chatbot setup",
+      m4_p: "Build and configure support chatbots that answer routine questions around the clock. The more inquiries pile up unanswered, the more a business will pay.",
+      m4_payer: '<b>For</b> small businesses with heavy inquiry loads — clinics, hotels',
+      k3: "What the overseas video points out", sp_h2: "The caveats before you attach — and what all four share",
+      warn_h: "Caveats",
+      w1: '<strong>Selling is half the job</strong> — finding clients is harder, and more decisive, than mastering the tools.',
+      w2: '<strong>Watch the hype</strong> — filter out the clickbait promising "anyone with AI makes $10k a month."',
+      w3: '<strong>Done-for-you is a service business</strong> — a human owns quality and deadlines; AI is just the tool.',
+      common_h: "What they share",
+      c1: '<strong>No new markets</strong> — all four attach to bottlenecks in businesses already making money.',
+      c2: '<strong>They sell outcomes</strong> — not AI features, but "30 videos," repeat purchases, more bookings.',
+      c3: '<strong>Proven demand</strong> — clients were already paying to solve these problems; AI just lowers the cost.',
+      fn_h2: 'Attach AI to<br><span class="gold">where your money flows</span>',
+      fn_lede: "You don't need to find something new. Find the slowest point in what already works — that's all it takes.",
+      s1_h4: "What you already do", s1_p: "Your job, business, or hobby — start where your time already goes.",
+      s2_h4: "The slowest bottleneck", s2_p: "Pick the repetitive chore, the unanswered inbox, the content you never get to.",
+      s3_h4: "Attach AI", s3_p: "Swap that one point to AI. The rest is iteration and proof.",
+      footer: "Summary built from the video's chapters"
+    },
+    cn: {
+      title: "把 AI 用在你赚钱的地方 — 视频精华",
+      h1: '别做 AI 创业公司，<br><span class="gold">帮忙接入的人</span><br>才能赚到钱',
+      lede: "用 AI 赚副业的四种方法、海外视频指出的局限 —— 以及指向「钱从哪里来」的一个答案。",
+      cta1: "看 3 个步骤",
+      cta2: "开始接入 AI",
+      cta3: "回到顶部",
+      flow_end: "你赚钱的地方",
+      st1_l: "种验证过的做法", st2_l: "小时自动应答", st3_l: "步即可启动", st4_l: "个新市场",
+      mq_l: "这些生意已经在为此付费",
+      mq_items: ["牙科诊所","培训机构","个人创作者","电商店铺","课程卖家","汽修店","民宿","内容营销"],
+      k1: "视频核心一句话",
+      th_h2: '钱不是流向<em style="font-style:normal; color:var(--gold)">制造</em> AI 的人，而是流向把 AI <em style="font-style:normal; color:var(--gold)">接入</em>现有生意的人。',
+      th_p: "造 AI 模型是大公司的游戏。但不懂技术、没时间、没方法去用这些模型的商家遍地都是。填补这道鸿沟的服务 —— 就是普通人可以切入的位置。",
+      eq1_h: "已经在赚钱的地方", eq1_p: "已有营收或客户的现有生意。市场验证已经完成。",
+      eq2_h: "慢的瓶颈", eq2_p: "内容制作、客户跟进、网站维护、客服应答 —— 靠人手处理时卡住的地方。",
+      eq3_h: "接入 AI", eq3_p: "只挑瓶颈用 AI 替代。卖的不是工具，而是结果。",
+      eq4_h: "收益", eq4_p: "客户愿意为省下的时间和多赚的营收付费。",
+      k2: "视频中介绍的四种方法", m_h2: "今天就能上手、经过验证的四种做法",
+      m1_h3: "内容二次加工服务",
+      m1_p: "把长视频、播客、博客文章剪辑成短视频、图文卡片、社交帖子 —— 全套代办。创作者忙着生产内容，没时间切片分发。",
+      m1_payer: '<b>客户</b> 个人创作者、课程卖家、内容营销人员',
+      m2_h3: "唤醒沉睡线索",
+      m2_p: "用 AI 给「咨询完就消失」或「买过一次就沉默」的客户发个性化消息和后续推荐，把闲置名单变成复购收入。",
+      m2_payer: '<b>客户</b> 留有客户线索数据的商家、电商店铺',
+      m3_h3: "本地商家网站改造",
+      m3_p: "用 AI 诊断经营十年的本地商家网站，改造成利于预约和咨询转化的结构。大报价高，商家自己又做不了。",
+      m3_payer: '<b>客户</b> 牙科、培训机构、汽修店等本地商家',
+      m4_h3: "客服应答机器人部署",
+      m4_p: "部署并配置能 24 小时回复常见咨询的客服机器人。咨询越多、越没人回的商家，付费意愿越强。",
+      m4_payer: '<b>客户</b> 咨询量大的中小企业、医院和民宿',
+      k3: "海外视频特别指出的部分", sp_h2: "接入之前要知道的局限，以及四种做法的共同点",
+      warn_h: "局限",
+      w1: '<strong>有一半功夫在销售</strong> —— 找客户比会用工具更难，也更关键。',
+      w2: '<strong>警惕夸大话术</strong> —— 过滤掉「人人都能靠 AI 月入过万」这类标题党。',
+      w3: '<strong>代办终究是服务业</strong> —— 质量和交付由人负责，AI 只是工具。',
+      common_h: "共同点",
+      c1: '<strong>不创造新市场</strong> —— 四种做法全都接入已经在赚钱的生意的瓶颈环节。',
+      c2: '<strong>卖的是结果</strong> —— 不是 AI 功能，而是「30 条视频」、复购单数、预约增长。',
+      c3: '<strong>需求已验证</strong> —— 客户本来就在为这些问题花钱，AI 只是降低了成本。',
+      fn_h2: '把 AI 接到<br><span class="gold">你赚钱的地方</span>',
+      fn_lede: "不需要寻找新东西。在已经在运转的事情里找到最慢的环节 —— 仅此而已。",
+      s1_h4: "你已经在做的事", s1_p: "职业、生意、爱好 —— 从已经投入时间的领域看起。",
+      s2_h4: "最慢的瓶颈", s2_p: "挑出重复又烦人的任务、积压的回复、一直没做的内容。",
+      s3_h4: "接入 AI", s3_p: "只把这一个环节换成 AI。剩下的就是迭代和验证。",
+      footer: "根据视频章节整理的摘要页面"
     }
+  };
+
+  var current = 'ko';
+  var heroTitle = document.getElementById('heroTitle');
+
+  /* ── 단어 단위 스플릿 리뷰 ── */
+  function splitTitle() {
+    var isCN = current === 'cn';
+    heroTitle.innerHTML = T[current].h1;
+    heroTitle.classList.remove('play');
+    var i = 0;
+    (function walk(node) {
+      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+        if (child.nodeType === 3) {
+          var text = child.textContent;
+          if (!text.trim()) return;
+          var frag = document.createDocumentFragment();
+          var parts = isCN ? text.split('') : text.split(/(\s+)/);
+          parts.forEach(function (p) {
+            if (!p) return;
+            if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+            var s = document.createElement('span');
+            s.className = 'w';
+            s.style.setProperty('--i', i++);
+            s.textContent = p;
+            frag.appendChild(s);
+          });
+          node.replaceChild(frag, child);
+        } else if (child.nodeType === 1 && child.tagName !== 'BR') {
+          walk(child);
+        }
+      });
+    })(heroTitle);
+    if (reduced) {
+      heroTitle.querySelectorAll('.w').forEach(function (w) { w.style.opacity = 1; w.style.transform = 'none'; });
+    } else {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { heroTitle.classList.add('play'); });
+      });
+    }
+  }
+
+  /* ── 마퀴 ── */
+  var mqTrack = document.getElementById('mqTrack');
+  function buildMarquee() {
+    mqTrack.innerHTML = '';
+    for (var r = 0; r < 2; r++) {
+      var set = document.createElement('div');
+      set.className = 'mq-set';
+      T[current].mq_items.forEach(function (t) {
+        var s = document.createElement('span');
+        s.className = 'mq-item';
+        s.textContent = t;
+        set.appendChild(s);
+      });
+      mqTrack.appendChild(set);
+    }
+  }
+
+  /* ── i18n 적용 ── */
+  function applyLang(lang) {
+    current = T[lang] ? lang : 'ko';
+    var dict = T[current];
+    document.documentElement.setAttribute('lang', current === 'cn' ? 'zh-CN' : current);
+    document.title = dict.title;
+    document.querySelectorAll('[data-i18n]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n');
+      if (dict[k] != null) el.textContent = dict[k];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function (el) {
+      var k = el.getAttribute('data-i18n-html');
+      if (dict[k] != null && el !== heroTitle) el.innerHTML = dict[k];
+    });
+    document.querySelectorAll('.lang-switch button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-lang') === current));
+    });
+    buildMarquee();
+    splitTitle();
+    try { localStorage.setItem('lang', current); } catch (e) {}
+  }
+
+  var initial = 'ko';
+  try {
+    var q = new URLSearchParams(location.search).get('lang');
+    var saved = localStorage.getItem('lang');
+    var nav = (navigator.language || '').toLowerCase();
+    if (q && T[q]) initial = q;
+    else if (saved && T[saved]) initial = saved;
+    else if (nav.indexOf('zh') === 0) initial = 'cn';
+    else if (nav.indexOf('en') === 0) initial = 'en';
+  } catch (e) {}
+  applyLang(initial);
+
+  document.querySelectorAll('.lang-switch button').forEach(function (b) {
+    b.addEventListener('click', function () { applyLang(b.getAttribute('data-lang')); });
+  });
+
+  /* ── 스크롤 리빌 + 스프링 ── */
+  var items = document.querySelectorAll('.reveal, .spring');
+  if (!('IntersectionObserver' in window) || reduced) {
+    items.forEach(function (el) { el.classList.add('in'); });
+  } else {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) {
@@ -674,8 +1121,112 @@
       });
     }, { threshold: 0.18, rootMargin: '0px 0px -6% 0px' });
     items.forEach(function (el) { io.observe(el); });
-  })();
+  }
+
+  /* ── 통계 카운트업 (2초, ease-out) ── */
+  var counted = false;
+  function countUp() {
+    if (counted) return;
+    counted = true;
+    document.querySelectorAll('.stat-n').forEach(function (el) {
+      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+      if (reduced) { el.textContent = target; return; }
+      var t0 = null;
+      function tick(ts) {
+        if (!t0) t0 = ts;
+        var p = Math.min((ts - t0) / 2000, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+  var statsEl = document.getElementById('stats');
+  if ('IntersectionObserver' in window) {
+    var sio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { countUp(); sio.disconnect(); }
+      });
+    }, { threshold: 0.4 });
+    sio.observe(statsEl);
+  } else { countUp(); }
+
+  /* ── 약한 마그네틱 CTA ── */
+  if (!reduced) {
+    document.querySelectorAll('.magnetic').forEach(function (btn) {
+      btn.addEventListener('pointermove', function (e) {
+        var r = btn.getBoundingClientRect();
+        var dx = e.clientX - (r.left + r.width / 2);
+        var dy = e.clientY - (r.top + r.height / 2);
+        var x = Math.max(-6, Math.min(6, dx * 0.12));
+        var y = Math.max(-5, Math.min(5, dy * 0.15));
+        btn.style.transition = 'none';
+        btn.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+      });
+      btn.addEventListener('pointerleave', function () {
+        btn.style.transition = 'transform .4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        btn.style.transform = 'translate(0,0)';
+      });
+    });
+  }
+
+  /* ── 컨페티 (첫 CTA 클릭 = 첫 결제 데모) ── */
+  function confetti() {
+    if (reduced) return;
+    var c = document.createElement('canvas');
+    c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:60';
+    c.width = innerWidth; c.height = innerHeight;
+    document.body.appendChild(c);
+    var ctx = c.getContext('2d');
+    var colors = ['#E6B95C', '#5BD6A2', '#EFEAE0', '#F2D489', '#E6785A'];
+    var parts = [];
+    for (var i = 0; i < 90; i++) {
+      parts.push({
+        x: Math.random() * c.width,
+        y: -20 - Math.random() * c.height * 0.3,
+        w: 6 + Math.random() * 6,
+        h: 8 + Math.random() * 8,
+        vy: 2.2 + Math.random() * 2.6,
+        vx: -1.4 + Math.random() * 2.8,
+        rot: Math.random() * Math.PI,
+        vr: -0.12 + Math.random() * 0.24,
+        col: colors[i % colors.length]
+      });
+    }
+    var t0 = null;
+    (function frame(ts) {
+      if (!t0) t0 = ts;
+      var dt = ts - t0;
+      ctx.clearRect(0, 0, c.width, c.height);
+      parts.forEach(function (p) {
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.col;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      if (dt < 2600) requestAnimationFrame(frame);
+      else c.remove();
+    })();
+  }
+  var celebrated = false;
+  function celebrateOnce() {
+    if (celebrated) return;
+    celebrated = true;
+    confetti();
+    try { sessionStorage.setItem('celebrated', '1'); } catch (e) {}
+  }
+  try { celebrated = sessionStorage.getItem('celebrated') === '1'; } catch (e) {}
+  var payCta = document.getElementById('payCta');
+  if (payCta) payCta.addEventListener('click', celebrateOnce);
+  var heroCta = document.getElementById('heroCta');
+  if (heroCta) heroCta.addEventListener('click', celebrateOnce);
+})();
 </script>
 
 </body>
 </html>
+

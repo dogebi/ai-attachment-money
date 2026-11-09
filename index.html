@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 돈이 나오는 곳에 AI를 붙이세요 — 영상 요약</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --ink:      #0B0F17;
+    --ink-2:    #121926;
+    --ink-3:    #1A2334;
+    --gold:     #E6B95C;
+    --gold-dim: rgba(230, 185, 92, .14);
+    --paper:    #EFEAE0;
+    --muted:    #98A2B3;
+    --green:    #5BD6A2;
+    --line:     rgba(152, 162, 179, .16);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+                 "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--gold); color: var(--ink); }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 28px; }
+
+  /* ───────── 히어로 ───────── */
+
+  .hero {
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding-top: 64px;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 110%, rgba(230,185,92,.10), transparent 70%),
+      radial-gradient(ellipse 40% 30% at 85% 0%, rgba(91,214,162,.05), transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero .wrap { position: relative; width: 100%; }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 6.2vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.22;
+    letter-spacing: -0.03em;
+    margin: 22px 0 26px;
+    max-width: 17ch;
+  }
+
+  .hero h1 .gold { color: var(--gold); }
+
+  .hero .lede {
+    color: var(--muted);
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    max-width: 46ch;
+    margin-bottom: 18px;
+  }
+
+  /* 돈의 흐름 — 모션 경로 */
+
+  .flow {
+    margin-top: 58px;
+    position: relative;
+    height: 190px;
+  }
+
+  .flow svg { width: 100%; height: 100%; overflow: visible; }
+
+  .flow .track {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1.5;
+  }
+
+  .flow .track-gold {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 9;
+    stroke-linecap: round;
+    animation: dash 2.4s linear infinite;
+    opacity: .55;
+  }
+
+  @keyframes dash { to { stroke-dashoffset: -52; } }
+
+  .coin {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #F6D98C, var(--gold) 60%, #9C7326);
+    box-shadow: 0 0 12px rgba(230,185,92,.55);
+    offset-path: path("M 40 118 C 220 118, 300 30, 460 30 S 700 118, 840 118");
+    offset-rotate: 0deg;
+    position: absolute;
+    top: 0; left: 0;
+    animation: travel 3.6s cubic-bezier(.45,.05,.55,.95) infinite;
+    opacity: 0;
+  }
+  .coin:nth-child(2) { animation-delay: 1.2s; }
+  .coin:nth-child(3) { animation-delay: 2.4s; }
+  .coin.c2 { width: 9px; height: 9px; animation-duration: 3.6s; animation-delay: .6s; }
+  .coin.c3 { width: 9px; height: 9px; animation-delay: 1.8s; }
+
+  @keyframes travel {
+    0%   { offset-distance: 0%;   opacity: 0; transform: scale(.4); }
+    10%  { opacity: 1; }
+    50%  { transform: scale(1); }
+    88%  { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; transform: scale(.4); }
+  }
+
+  .flow .endpoint,
+  .flow .origin {
+    position: absolute;
+    bottom: 96px;
+    font-size: .85rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .flow .origin  { left: 8px; }
+  .flow .endpoint { right: 0; bottom: 102px; color: var(--gold); font-weight: 700; }
+
+  .stack {
+    position: absolute;
+    right: 26px;
+    bottom: 0;
+    width: 42px;
+    height: 66px;
+  }
+  .stack i {
+    position: absolute;
+    left: 0;
+    width: 42px; height: 13px;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #F2D489, var(--gold) 45%, #8F6A22);
+    box-shadow: 0 2px 6px rgba(0,0,0,.45);
+    animation: settle 3.6s ease infinite;
+  }
+  .stack i:nth-child(1) { bottom: 0; }
+  .stack i:nth-child(2) { bottom: 16px; animation-delay: 1.2s; }
+  .stack i:nth-child(3) { bottom: 32px; animation-delay: 2.4s; }
+  .stack i:nth-child(4) { bottom: 48px; width: 0; height: 13px; border-radius: 7px;
+    background: linear-gradient(180deg, #F2D489, var(--gold) 45%, #8F6A22);
+    animation: grow 3.6s ease-in infinite; }
+
+  @keyframes settle { 0%, 88%, 100% { transform: translateY(0); } }
+  @keyframes grow {
+    0%, 84%  { width: 0; opacity: 0; }
+    90%, 96% { width: 42px; opacity: 1; }
+    100%     { width: 42px; opacity: 0; }
+  }
+
+  /* ───────── 공통 섹션 ───────── */
+
+  section { padding: 96px 0; }
+
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--gold);
+    font-weight: 700;
+    font-size: .95rem;
+    margin-bottom: 20px;
+  }
+  .kicker::before {
+    content: "";
+    width: 26px; height: 2px;
+    background: var(--gold);
+  }
+
+  h2 {
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+    max-width: 24ch;
+    margin-bottom: 26px;
+  }
+
+  p.body {
+    color: var(--muted);
+    max-width: 58ch;
+    margin-bottom: 14px;
+  }
+  p.body strong { color: var(--paper); font-weight: 600; }
+
+  /* 스크롤 리빌 */
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity .8s cubic-bezier(.2,.6,.2,1), transform .8s cubic-bezier(.2,.6,.2,1);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ───────── 명제(thesis) ───────── */
+
+  .thesis {
+    background: var(--ink-2);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .equation {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 44px;
+    flex-wrap: wrap;
+  }
+
+  .eq-box {
+    flex: 1 1 180px;
+    padding: 26px 22px;
+    background: var(--ink-3);
+    position: relative;
+  }
+  .eq-box + .eq-box { margin-left: 34px; }
+  .eq-box::before {
+    content: "";
+    position: absolute;
+    left: -23px; top: 50%;
+    width: 12px; height: 12px;
+    margin-top: -6px;
+    border-top: 2px solid var(--gold);
+    border-right: 2px solid var(--gold);
+    transform: rotate(45deg);
+    opacity: .8;
+  }
+  .eq-box h3 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .eq-box p { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+  .eq-box.hot { background: var(--gold-dim); }
+  .eq-box.hot h3 { color: var(--gold); }
+  .eq-box.gain h3 { color: var(--green); }
+  .eq-box.gain { box-shadow: inset 0 0 0 1px rgba(91,214,162,.35); }
+
+  /* ───────── 방법 4가지 ───────── */
+
+  .method {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 28px;
+    padding: 46px 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .method:last-of-type { border-bottom: 1px solid var(--line); }
+
+  .method .num {
+    font-size: 4.4rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(230,185,92,.5);
+    transition: color .6s, -webkit-text-stroke-color .6s;
+  }
+  .method.in .num { color: var(--gold); -webkit-text-stroke-color: var(--gold); }
+
+  .method h3 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    margin-bottom: 10px;
+  }
+
+  .method p { color: var(--muted); max-width: 56ch; margin-bottom: 14px; }
+
+  .payer {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: .9rem;
+    color: var(--paper);
+    background: rgba(91,214,162,.08);
+    border: 1px solid rgba(91,214,162,.28);
+    border-radius: 999px;
+    padding: 6px 16px;
+  }
+  .payer b { color: var(--green); font-weight: 700; }
+
+  .meter {
+    height: 3px;
+    max-width: 420px;
+    background: var(--line);
+    margin-top: 22px;
+    overflow: hidden;
+    border-radius: 2px;
+  }
+  .meter i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--gold), #F2D489);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 1.2s cubic-bezier(.2,.7,.2,1) .3s;
+  }
+  .method.in .meter i { transform: scaleX(1); }
+
+  /* ───────── 한계와 공통점 ───────── */
+
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-top: 48px;
+  }
+
+  .split h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--line);
+  }
+  .split .warn h3 { border-color: rgba(230,120,90,.45); }
+  .split .common h3 { border-color: rgba(91,214,162,.45); }
+
+  .split li {
+    list-style: none;
+    position: relative;
+    padding-left: 20px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-size: .96rem;
+  }
+  .split li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: .68em;
+    width: 8px; height: 2px;
+    background: var(--muted);
+  }
+  .warn li::before { background: #E6785A; }
+  .common li::before { background: var(--green); }
+  .split li strong { color: var(--paper); font-weight: 600; }
+
+  /* ───────── 결론 ───────── */
+
+  .final {
+    text-align: center;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 0%, rgba(230,185,92,.09), transparent 70%),
+      var(--ink-2);
+    border-top: 1px solid var(--line);
+    padding: 130px 0 140px;
+  }
+
+  .node {
+    width: 64px; height: 64px;
+    margin: 0 auto 44px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: grid;
+    place-items: center;
+    position: relative;
+    box-shadow: 0 0 40px rgba(230,185,92,.35);
+  }
+  .node::before, .node::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid var(--gold);
+    animation: pulse 2.6s ease-out infinite;
+  }
+  .node::after { animation-delay: 1.3s; }
+  @keyframes pulse {
+    from { transform: scale(1);   opacity: .8; }
+    to   { transform: scale(2.6); opacity: 0; }
+  }
+  .node svg { display: block; }
+
+  .final h2 {
+    font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    margin: 0 auto 30px;
+    max-width: 20ch;
+    line-height: 1.3;
+  }
+  .final h2 .gold { color: var(--gold); }
+
+  .final .lede {
+    color: var(--muted);
+    max-width: 44ch;
+    margin: 0 auto 56px;
+  }
+
+  .steps {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .step {
+    flex: 1 1 200px;
+    padding: 26px 20px;
+    text-align: left;
+    border-top: 2px solid var(--line);
+    transition: border-color .4s;
+  }
+  .step:hover { border-color: var(--gold); }
+  .step .s-num {
+    font-size: .85rem;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .step h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+  .step p { font-size: .88rem; color: var(--muted); }
+
+  /* ───────── 푸터 ───────── */
+
+  footer {
+    padding: 44px 0 56px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: .85rem;
+  }
+  footer .wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  footer a { color: var(--muted); transition: color .25s; }
+  footer a:hover { color: var(--gold); }
+
+  /* ───────── 접근성 ───────── */
+
+  a:focus-visible, .step:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+
+  @media (max-width: 640px) {
+    .method { grid-template-columns: 1fr; gap: 8px; padding: 38px 0; }
+    .method .num { font-size: 3.2rem; margin-bottom: 6px; }
+    .split { grid-template-columns: 1fr; gap: 44px; }
+    .eq-box + .eq-box { margin-left: 0; margin-top: 34px; }
+    .eq-box::before {
+      left: 50%; top: -23px;
+      margin-left: -6px; margin-top: 0;
+      transform: rotate(135deg);
+    }
+    .flow .endpoint, .flow .origin { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .coin, .track-gold, .stack i, .node::before, .node::after {
+      animation: none !important;
+    }
+    .coin, .stack i:nth-child(4) { opacity: 0; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .meter i { transform: scaleX(1); transition: none; }
+    .method.in .num { color: var(--gold); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═════════ 히어로 ═════════ -->
+<header class="hero">
+  <div class="wrap">
+    <h1 class="reveal">AI 스타트업 말고,<br><span class="gold">붙여 주는 사람</span>이<br>돈을 번다</h1>
+    <p class="lede reveal" style="transition-delay:.15s">
+      AI로 부수입을 만드는 4가지 방법과, 해외 영상이 짚은 한계 — 그리고 결국 돈이 나오는 곳을 향한 하나의 답.
+    </p>
+
+    <!-- 돈의 흐름 모션 -->
+    <div class="flow" aria-hidden="true">
+      <svg viewBox="0 0 880 190" preserveAspectRatio="none">
+        <path class="track"     d="M 40 118 C 220 118, 300 30, 460 30 S 700 118, 840 118"/>
+        <path class="track-gold" d="M 40 118 C 220 118, 300 30, 460 30 S 700 118, 840 118"/>
+      </svg>
+      <span class="origin">AI</span>
+      <span class="coin"></span>
+      <span class="coin c2"></span>
+      <span class="coin c3"></span>
+      <span class="endpoint">내 돈이 나오는 곳</span>
+      <div class="stack"><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═════════ 명제 ═════════ -->
+<section class="thesis">
+  <div class="wrap">
+    <p class="kicker reveal">영상의 핵심 한 문장</p>
+    <h2 class="reveal">돈은 AI를 <em style="font-style:normal; color:var(--gold)">만드는</em> 사람이 아니라, 기존 사업에 AI를 <em style="font-style:normal; color:var(--gold)">붙여 주는</em> 사람에게 흐른다.</h2>
+    <p class="body reveal">AI 모델을 만드는 건 대기업의 게임입니다. 하지만 그 모델을 몰라서, 시간이 없어서, 방법을 몰라서 못 쓰는 사업자는 넘칩니다. 그 간극을 메워 주는 서비스 — 그게 개인이 노릴 수 있는 자리입니다.</p>
+
+    <div class="equation">
+      <div class="eq-box reveal">
+        <h3>돈이 나오는 곳</h3>
+        <p>이미 매출이 있거나 고객이 있는 기존 사업. 시장 검증이 끝난 상태.</p>
+      </div>
+      <div class="eq-box hot reveal" style="transition-delay:.15s">
+        <h3>느린 병목</h3>
+        <p>콘텐츠 제작, 후속 연락, 사이트 관리, 상담 응대 — 사람 손으로 하다 보니 막힌 지점.</p>
+      </div>
+      <div class="eq-box reveal" style="transition-delay:.3s">
+        <h3>AI를 붙인다</h3>
+        <p>병목만 골라 AI로 대체. 도구를 파는 게 아니라 결과를 대행.</p>
+      </div>
+      <div class="eq-box gain reveal" style="transition-delay:.45s">
+        <h3>수익</h3>
+        <p>고객은 시간과 매출이 늘어난 만큼 기꺼이 지불한다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ 방법 4가지 ═════════ -->
+<section>
+  <div class="wrap">
+    <p class="kicker reveal">영상에서 소개한 4가지 방법</p>
+    <h2 class="reveal">바로 시작 가능한, 검증된 네 가지</h2>
+
+    <div class="method reveal">
+      <div class="num" aria-hidden="true">1</div>
+      <div>
+        <h3>콘텐츠 재가공 대행</h3>
+        <p>긴 영상, 팟캐스트, 블로그 글을 숏폼·카드뉴스·SNS 게시물로 잘라 주는 대행. 크리에이터는 만들기 바쁘고, 잘라서 퍼뜨릴 시간은 없습니다.</p>
+        <span class="payer"><b>고객</b> 1인 크리에이터, 강의 판매자, 콘텐츠 마케터</span>
+        <div class="meter"><i></i></div>
+      </div>
+    </div>
+
+    <div class="method reveal">
+      <div class="num" aria-hidden="true">2</div>
+      <div>
+        <h3>휴면 리드 깨우기</h3>
+        <p>문의만 하고 사라진 고객, 한 번 산 뒤 손 놓은 고객 리스트에 AI로 개인화 메시지와 후속 제안을 보내 재구매를 만들어 줍니다. 쌓아 두기만 한 리드가 곧 매출입니다.</p>
+        <span class="payer"><b>고객</b> 리드 데이터를 쌓아 둔 사업자, 온라인 스토어</span>
+        <div class="meter"><i></i></div>
+      </div>
+    </div>
+
+    <div class="method reveal">
+      <div class="num" aria-hidden="true">3</div>
+      <div>
+        <h3>지역 업체 웹사이트 개편</h3>
+        <p>10년 된 지역 업체 홈페이지를 AI로 진단하고, 예약·문의 전환이 잘 되는 구조로 개편. 대형 에이전시는 비싸고, 업체 주인은 직접 하기 어렵습니다.</p>
+        <span class="payer"><b>고객</b> 치과·학원·카센터 같은 로컬 비즈니스</span>
+        <div class="meter"><i></i></div>
+      </div>
+    </div>
+
+    <div class="method reveal">
+      <div class="num" aria-hidden="true">4</div>
+      <div>
+        <h3>고객 응대 챗봇 셋팅</h3>
+        <p>반복되는 문의에 24시간 답하는 상담 챗봇을 구축·세팅해 주는 대행. 문의가 몰리는데 사람이 답을 못 하는 업체일수록 지불 의사가 큽니다.</p>
+        <span class="payer"><b>고객</b> 상담 문의가 많은 중소 업체, 병원·숙박업</span>
+        <div class="meter"><i></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ 한계와 공통점 ═════════ -->
+<section class="thesis">
+  <div class="wrap">
+    <p class="kicker reveal">해외 영상이 짚은 부분</p>
+    <h2 class="reveal">붙이기 전에 알아야 할 한계와, 네 가지의 공통점</h2>
+
+    <div class="split">
+      <div class="warn reveal">
+        <h3>한계</h3>
+        <ul>
+          <li><strong>영업이 반</strong> — 도구를 잘 쓰는 것보다 고객을 찾아 나서는 게 더 어렵고, 더 결정적입니다.</li>
+          <li><strong>과장 화법 경계</strong> — "AI만 있으면 누구나 월 천만"류의 클릭베이트는 필터링해야 합니다.</li>
+          <li><strong>대행은 결국 서비스업</strong> — 품질과 마감을 책임지는 사람의 일이고, AI는 여기서 도구일 뿐입니다.</li>
+        </ul>
+      </div>
+      <div class="common reveal" style="transition-delay:.15s">
+        <h3>공통점</h3>
+        <ul>
+          <li><strong>새 시장을 만들지 않는다</strong> — 네 가지 전부 이미 돈이 나오는 기존 사업의 병목에 붙습니다.</li>
+          <li><strong>결과를 판다</strong> — AI 기능이 아니라 "영상 30개", "재구매 n건", "예약 증가"를 전달합니다.</li>
+          <li><strong>검증된 수요</strong> — 고객은 이미 그 문제로 돈을 쓰고 있었고, AI는 그 비용을 낮출 뿐입니다.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════ 결론 ═════════ -->
+<section class="final">
+  <div class="wrap">
+    <div class="node reveal" aria-hidden="true">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B0F17" stroke-width="2.4" stroke-linecap="round">
+        <path d="M4 17 L10 11 L14 14 L20 6"/>
+        <path d="M15 6 h5 v5"/>
+      </svg>
+    </div>
+    <h2 class="reveal">내 돈이 나오는 곳에<br><span class="gold">AI를 붙이세요</span></h2>
+    <p class="lede reveal">새로운 것을 찾을 필요가 없습니다. 이미 굴러가는 일에서 가장 느린 지점을 찾는 것 — 그게 전부입니다.</p>
+
+    <div class="steps">
+      <div class="step reveal" tabindex="0">
+        <p class="s-num">1</p>
+        <h4>내가 이미 하는 일</h4>
+        <p>직업, 사업, 취미 — 시간을 이미 쓰고 있는 영역부터 봅니다.</p>
+      </div>
+      <div class="step reveal" tabindex="0" style="transition-delay:.15s">
+        <p class="s-num">2</p>
+        <h4>가장 느린 병목</h4>
+        <p>반복하고 싫어하는 작업, 밀린 답장, 못 만드는 콘텐츠를 고릅니다.</p>
+      </div>
+      <div class="step reveal" tabindex="0" style="transition-delay:.3s">
+        <p class="s-num">3</p>
+        <h4>AI를 붙인다</h4>
+        <p>그 지점 하나만 AI로 바꿔 봅니다. 남은 건 반복과 검증입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>영상 챕터를 기반으로 정리한 요약 페이지</span>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var items = document.querySelectorAll('.reveal, .method');
+    if (!('IntersectionObserver' in window)) {
+      items.forEach(function (el) { el.classList.add('in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -6% 0px' });
+    items.forEach(function (el) { io.observe(el); });
+  })();
+</script>
+
+</body>
+</html>
